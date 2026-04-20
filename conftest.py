@@ -1,3 +1,4 @@
+import ftplib
 import importlib
 import json
 import os.path
@@ -6,6 +7,7 @@ import jsonpickle
 import pytest
 from fixture.application import Application
 from fixture.orm import ORMFixture
+import ftputil
 
 fixture = None
 target = None
@@ -40,8 +42,9 @@ def check_ui(request):
 
 @pytest.fixture(scope="session")
 def db(request, config):
-    db_fixture = ORMFixture(host=config["db"]["host"], name=config["db"]["name"],
-                           user=config["db"]["user"], password=config["db"]["password"])
+    db_config = config["db"]
+    db_fixture = ORMFixture(host=db_config["host"], name=db_config["name"],
+                           user=db_config["user"], password=db_config["password"])
     def fin():
         db_fixture.destroy()
     request.addfinalizer(fin)
@@ -56,9 +59,11 @@ def stop(request):
     return fixture
 
 @pytest.fixture(scope="session", autouse=True)
-def configure_server(request):
-    pass
-
+def configure_server(request, config):
+    install_server_configuration(config['ftp']['host'],config['ftp']['username'],config['ftp']['password'])
+    def fin():
+        restore_server_configuration(config['ftp']['host'],config['ftp']['username'],config['ftp']['password'])
+    request.addfinalizer(fin)
 
 def pytest_addoption(parser):
     parser.addoption("--browser", action="store", default="firefox")
@@ -80,3 +85,20 @@ def load_from_module(module):
 def load_from_json(json_file):
     with open(os.path.join(os.path.dirname(os.path.abspath(__file__)), f"data/{json_file}.json")) as json_data:
         return jsonpickle.decode(json_data.read())
+
+def install_server_configuration(host, username, password):
+    with ftputil.FTPHost(host, username, password) as remote:
+        # добавить config_inc в resources
+        if remote.path.isfile('config_inc.php.bak'):
+            remote.remove('config_ind.php.bak')
+        if remote.path.isfile('config_inc.php'):
+            remote.rename('config_inc.php', 'config_ind.php.bak')
+        remote.upload(os.path.join(os.path.dirname(__file__), "resources/config_inc.php"), "config_inc.php")
+
+def restore_server_configuration(host, username, password):
+    with ftputil.FTPHost(host, username, password) as remote:
+        if remote.path.isfile('config_inc.php.bak'):
+            if remote.path.isfile('config_ind.php'):
+                remote.remove('config_inc.php')
+            remote.rename('config_ind.php.bak', 'config_ind.php')
+
