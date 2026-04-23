@@ -58,12 +58,12 @@ def stop(request):
     request.addfinalizer(fin)
     return fixture
 
-@pytest.fixture(scope="session", autouse=True)
-def configure_server(request, config):
-    install_server_configuration(config['ftp']['host'],config['ftp']['username'],config['ftp']['password'])
-    def fin():
-        restore_server_configuration(config['ftp']['host'],config['ftp']['username'],config['ftp']['password'])
-    request.addfinalizer(fin)
+# @pytest.fixture(scope="session", autouse=True)
+# def configure_server(request, config):
+#     install_server_configuration(config['ftp']['host'],config['ftp']['username'],config['ftp']['password'])
+#     def fin():
+#         restore_server_configuration(config['ftp']['host'],config['ftp']['username'],config['ftp']['password'])
+#     request.addfinalizer(fin)
 
 def pytest_addoption(parser):
     parser.addoption("--browser", action="store", default="firefox")
