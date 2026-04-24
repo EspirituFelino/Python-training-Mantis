@@ -31,7 +31,7 @@ def app(request, config):
     global fixture
     browser = request.config.getoption("--browser")
     if fixture is None or not fixture.is_valid():
-        fixture = Application(browser=browser, base_url=config["web"]["base_url"])
+        fixture = Application(browser=browser, config=config)
     # fixture.session.ensure_login(username=config["web_admin"]["username"], password=config["web_admin"]["password"])
 
     return fixture
@@ -58,12 +58,12 @@ def stop(request):
     request.addfinalizer(fin)
     return fixture
 
-# @pytest.fixture(scope="session", autouse=True)
-# def configure_server(request, config):
-#     install_server_configuration(config['ftp']['host'],config['ftp']['username'],config['ftp']['password'])
-#     def fin():
-#         restore_server_configuration(config['ftp']['host'],config['ftp']['username'],config['ftp']['password'])
-#     request.addfinalizer(fin)
+@pytest.fixture(scope="session", autouse=True)
+def configure_server(request, config):
+    install_server_configuration(config['ftp']['host'],config['ftp']['username'],config['ftp']['password'])
+    def fin():
+        restore_server_configuration(config['ftp']['host'],config['ftp']['username'],config['ftp']['password'])
+    request.addfinalizer(fin)
 
 def pytest_addoption(parser):
     parser.addoption("--browser", action="store", default="firefox")
@@ -90,15 +90,15 @@ def install_server_configuration(host, username, password):
     with ftputil.FTPHost(host, username, password) as remote:
         # добавить config_inc в resources
         if remote.path.isfile('config_inc.php.bak'):
-            remote.remove('config_ind.php.bak')
+            remote.remove('config_inc.php.bak')
         if remote.path.isfile('config_inc.php'):
-            remote.rename('config_inc.php', 'config_ind.php.bak')
+            remote.rename('config_inc.php', 'config_inc.php.bak')
         remote.upload(os.path.join(os.path.dirname(__file__), "resources/config_inc.php"), "config_inc.php")
 
 def restore_server_configuration(host, username, password):
     with ftputil.FTPHost(host, username, password) as remote:
         if remote.path.isfile('config_inc.php.bak'):
-            if remote.path.isfile('config_ind.php'):
+            if remote.path.isfile('config_inc.php'):
                 remote.remove('config_inc.php')
-            remote.rename('config_ind.php.bak', 'config_ind.php')
+            remote.rename('config_inc.php.bak', 'config_inc.php')
 

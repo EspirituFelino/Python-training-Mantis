@@ -2,13 +2,14 @@ import random
 import string
 from selenium import webdriver
 
+from fixture.james import JamesHelper
 from fixture.orm import ORMFixture
 from fixture.project import ProjectHelper
 from fixture.session import SessionHelper
 
 
 class Application:
-    def __init__(self, browser, base_url):
+    def __init__(self, browser, config):
         if browser == "firefox":
             self.wd = webdriver.Firefox()
         elif browser == "chrome":
@@ -18,9 +19,11 @@ class Application:
         else:
             raise ValueError(f"Invalid browser {browser}")
         self.wd.implicitly_wait(0.3)
+        self.config = config
         self.session = SessionHelper(self)
         self.project = ProjectHelper(self)
-        self.base_url = base_url
+        self.james = JamesHelper(self)
+        self.base_url = config['web']['base_url']
 
     def destroy(self):
         self.wd.quit()
