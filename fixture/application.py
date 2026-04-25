@@ -6,6 +6,7 @@ from fixture.james import JamesHelper
 from fixture.orm import ORMFixture
 from fixture.project import ProjectHelper
 from fixture.session import SessionHelper
+from fixture.signup import SignupHelper
 
 
 class Application:
@@ -23,6 +24,7 @@ class Application:
         self.session = SessionHelper(self)
         self.project = ProjectHelper(self)
         self.james = JamesHelper(self)
+        self.signup = SignupHelper(self)
         self.base_url = config['web']['base_url']
 
     def destroy(self):
@@ -57,3 +59,10 @@ class Application:
     def random_string(self, prefix, maxlen):
         symbols = string.ascii_letters + string.digits + string.punctuation + " "*10
         return prefix + ''.join([random.choice(symbols) for i in range(random.randrange(maxlen))])
+
+    def random_letters(self, prefix, maxlen):
+        symbols = string.ascii_letters
+        return prefix + ''.join([random.choice(symbols) for i in range(random.randrange(maxlen))])
+
+    def submit(self):
+        self.wd.find_element_by_css_selector("input[type='submit']").click()
