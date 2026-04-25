@@ -7,6 +7,7 @@ from fixture.orm import ORMFixture
 from fixture.project import ProjectHelper
 from fixture.session import SessionHelper
 from fixture.signup import SignupHelper
+from fixture.soap import SoapHelper
 
 
 class Application:
@@ -25,6 +26,7 @@ class Application:
         self.project = ProjectHelper(self)
         self.james = JamesHelper(self)
         self.signup = SignupHelper(self)
+        self.soap = SoapHelper(self)
         self.base_url = config['web']['base_url']
 
     def destroy(self):
