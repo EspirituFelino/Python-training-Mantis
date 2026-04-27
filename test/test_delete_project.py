@@ -4,7 +4,7 @@ from model.project import Project
 
 
 def test_delete_project(app, db):
-    app.session.ensure_login(username="administrator", password="root")
+    # app.session.ensure_login(username="administrator", password="root")
     old_projects = db.get_project_list()
     if len(old_projects) == 0:
         app.project.add_project(Project(name='Burn After Read'))

@@ -32,7 +32,7 @@ def app(request, config):
     browser = request.config.getoption("--browser")
     if fixture is None or not fixture.is_valid():
         fixture = Application(browser=browser, config=config)
-    # fixture.session.ensure_login(username=config["web_admin"]["username"], password=config["web_admin"]["password"])
+    fixture.session.ensure_login(username=config["web_admin"]["username"], password=config["web_admin"]["password"])
 
     return fixture
 
