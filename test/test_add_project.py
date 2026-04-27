@@ -9,3 +9,4 @@ def test_add_project(app, db):
     old_projects.append(project)
     new_projects = db.get_project_list()
     assert old_projects == new_projects
+    assert app.soap.check_project_by_name(project.name)

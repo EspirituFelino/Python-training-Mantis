@@ -14,3 +14,4 @@ def test_delete_project(app, db):
     old_projects.remove(project)
     new_projects = db.get_project_list()
     assert old_projects == new_projects
+    assert not app.soap.check_project_by_name(project.name)
